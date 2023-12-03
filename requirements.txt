@@ -1,2 +1,6 @@
-uvicorn==0.15.0
-python-dotenv==0.19.1
+fastapi
+uvicorn[standard]
+python-dotenv
+python_multipart
+python-jose[cryptography]
+passlib[bcrypt]
