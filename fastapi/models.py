@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Sequence, ForeignKey
 from datetime import datetime
 
-from config.database import Base
+from database import Base
 
 class User(Base):
     __tablename__ = 'users'
