@@ -1,5 +1,6 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from typing import Union
 
 from datetime import datetime, timedelta
 # from jose import JWTError, jwt
@@ -36,7 +37,7 @@ async def get_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db
 
 
 @app.get('/user/{user_id}', status_code=status.HTTP_200_OK ,tags=['Users'])
-async def get_user(user_id: int, db: Session = Depends(get_db)):
+async def get_user(user_id: int, q: Union[str, None] = None, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.id == user_id).first()
     
     if user is None:
@@ -50,6 +51,19 @@ async def createUser(user: UserBase, db: Session=Depends(get_db)):
     db.add(user)
     db.commit()
     return user
+
+#function to update user
+@app.put('/user/{user_id}', status_code=status.HTTP_202_ACCEPTED, tags=['Users'])
+async def update_user(user_id: int, user: UserBase, db: Session = Depends(get_db)):
+    user_query = db.query(models.User).filter(models.User.id == user_id)
+
+    if user_query.first() is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user_query.update(user.model_dump(), synchronize_session=False)
+    db.commit()
+
+    return user_query.first()
 
 @app.delete('/user/{user_id}', status_code=status.HTTP_204_NO_CONTENT, tags=['Users'])
 async def delete_user(user_id: int, db: Session = Depends(get_db)):
