@@ -61,4 +61,5 @@ async def delete_user(user_id: int, db: Session = Depends(get_db)):
     db.delete(user)
     db.commit()
 
-    return None  # Return None with status_code=204 (No Content)
+    # Return None with status_code=204 (No Content)
+    return None  
