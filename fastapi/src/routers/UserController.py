@@ -4,7 +4,7 @@ from typing import Union
 
 import models
 from database import engine, SessionLocal
-from model_validators import UserBase, EventBase
+from model_validators import UserBase
 from src.dependencies import get_db 
 
 routers = APIRouter()
