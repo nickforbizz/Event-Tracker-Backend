@@ -14,8 +14,8 @@ models.Base.metadata.create_all(bind=engine)
 
 
 @routers.get('/events', status_code=status.HTTP_200_OK, tags=['Events'])
-async def get_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    events = db.query(models.User).offset(skip).limit(limit).all()
+async def get_events(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    events = db.query(models.Event).offset(skip).limit(limit).all()
     return events
 
 
