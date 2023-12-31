@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, PositiveInt
 
 class UserBase(BaseModel):
     username: str
@@ -7,4 +7,4 @@ class UserBase(BaseModel):
 class EventBase(BaseModel):
     name: str
     description: str
-    fk_user: int
+    fk_user: PositiveInt
