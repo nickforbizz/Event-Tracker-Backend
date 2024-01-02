@@ -1,12 +1,7 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Request
+from fastapi import FastAPI, Depends, HTTPException, requests, status, Request
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2AuthorizationCodeBearer
-from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
-from fastapi.openapi.models import OAuthFlowAuthorizationCode
-from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
-from fastapi.openapi.models import OAuthFlowAuthorizationCode
 from google.oauth2 import id_token
-from google.auth.transport import requests
 from dotenv import load_dotenv
 import os
 
@@ -24,7 +19,7 @@ oauth2_scheme = OAuth2AuthorizationCodeBearer(
 )
 
 # Set up your Google OAuth 2.0 credentials
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 
 # Google OAuth 2.0 authorization URL
@@ -46,16 +41,16 @@ app.include_router(EventController.routers, prefix="/events", tags=["Events"])
 
 # Add routes for authentication
 # Google callback
-@app.get('/login', tags=['ROOT'])
+@app.get('/login')
 async def login():
-    google_provider_cfg = requests.get('https://accounts.google.com/.well-known/openid-configuration').json()
-    authorization_endpoint = google_provider_cfg['authorization_endpoint']
+    google_provider_cfg_url = 'https://accounts.google.com/.well-known/openid-configuration'
+    google_provider_cfg = requests.get(google_provider_cfg_url).json()
     
     # Redirect users to Google for authentication
     return {
         "redirect_uri": "http://localhost:8000/callback",
-        "authorization_url": authorization_endpoint,
-        "client_id": GOOGLE_CLIENT_ID,
+        "authorization_url": google_provider_cfg["authorization_endpoint"],
+        "client_id": CLIENT_ID,
     }
 
 # Google callback
@@ -64,16 +59,15 @@ async def callback(code: str, state: str, token: str = Depends(oauth2_scheme)):
     token_endpoint = 'https://oauth2.googleapis.com/token'
     token_response = id_token.fetch_token(token_endpoint,
                                           authorization_response=code,
-                                          client_id=GOOGLE_CLIENT_ID)
+                                          client_id=CLIENT_ID)
     
     # Use token_response to get user information
     user_info = id_token.verify_oauth2_token(token_response['id_token'],
                                              requests.Request(),
-                                             GOOGLE_CLIENT_ID)
+                                             CLIENT_ID)
     
     # Your logic after authentication
     return {"token": token, "user_info": user_info}
-
 @app.get('/home', tags=['ROOT'])
 def root() -> dict:
     return {'msg': 'Welcome '}
